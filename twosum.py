@@ -11,17 +11,14 @@ def two_sum_optimal(nums, target):
   return None
 
 
-def two_sum_silly_brute_force(nums, target):
+def two_sum_answer1(nums, target):
   for pizza in range(len(nums)):
     for bob in range(len(nums)):
-      if pizza == bob:
-        continue
       if nums[pizza] + nums[bob] == target:
         return [pizza, bob]
-  return None
 
 
-def two_sum_brute_force(nums, target):
+def two_sum_answer2(nums, target):
   for i, num_i in enumerate(nums):
     for j, num_j in enumerate(nums):
       if i == j:
@@ -38,24 +35,24 @@ class TestOpt(unittest.TestCase):
     target = 9
     ans = [0, 1]
     self.assertCountEqual(two_sum_optimal(nums, target), ans)
-    self.assertCountEqual(two_sum_brute_force(nums, target), ans)
-    self.assertCountEqual(two_sum_silly_brute_force(nums, target), ans)
+    self.assertCountEqual(two_sum_answer1(nums, target), ans)
+    self.assertCountEqual(two_sum_answer2(nums, target), ans)
 
   def test_example2(self):
     nums = [3, 2, 4]
     target = 6
     ans = [1, 2]
     self.assertCountEqual(two_sum_optimal(nums, target), ans)
-    self.assertCountEqual(two_sum_brute_force(nums, target), ans)
-    self.assertCountEqual(two_sum_silly_brute_force(nums, target), ans)
+    self.assertCountEqual(two_sum_answer1(nums, target), ans)
+    self.assertCountEqual(two_sum_answer2(nums, target), ans)
 
   def test_example3(self):
     nums = [3, 3]
     target = 6
     ans = [0, 1]
     self.assertCountEqual(two_sum_optimal(nums, target), ans)
-    self.assertCountEqual(two_sum_brute_force(nums, target), ans)
-    self.assertCountEqual(two_sum_silly_brute_force(nums, target), ans)
+    self.assertCountEqual(two_sum_answer1(nums, target), ans)
+    self.assertCountEqual(two_sum_answer2(nums, target), ans)
 
 
 if __name__ == '__main__':
