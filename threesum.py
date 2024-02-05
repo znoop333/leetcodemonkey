@@ -2,7 +2,7 @@ import unittest
 from typing import List, Tuple
 
 
-def three_sum_answer1(nums: List[int]) -> List[Tuple]:
+def three_sum_answer1(nums: List[int]) -> List[Tuple[int]]:
   """ three_sum_answer1 solves the ThreeSum problem using brute force
   :param nums: a list of integers in no particular order
   :return: a list of elements of nums such that nums[i] + nums[j] + nums[k] == 0
@@ -15,14 +15,13 @@ def three_sum_answer1(nums: List[int]) -> List[Tuple]:
         if nums[i] + nums[j] + nums[k] == 0:
           t = [nums[i], nums[j], nums[k]]
           t.sort()
-          solutions.add(t)
+          solutions.add(tuple(t))
   return list(solutions)
 
 
 class TestThreeSums(unittest.TestCase):
   def test_two_sum_answer1(self):
-    ans = three_sum_answer1([-1, 0, 1, 2, -1, -4])
-    self.assertCountEqual(three_sum_answer1([-1, 0, 1, 2, -1, -4]), [[-1, -1, 2], [-1, 0, 1]])
+    self.assertCountEqual(three_sum_answer1([-1, 0, 1, 2, -1, -4]), [(-1, -1, 2), (-1, 0, 1)])
 
 
 if __name__ == '__main__':
