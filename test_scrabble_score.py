@@ -20,6 +20,9 @@ class TestAbsFunction(unittest.TestCase):
     np.testing.assert_array_equal(scrabble_score.yellows("smile", "miles"), np.array([True, True, True, True, True]),
                                   strict=True)
 
+  def test_get_pattern(self):
+    np.testing.assert_array_equal(scrabble_score.get_pattern("smile", "stile"), [2, 0, 2, 2, 2],
+                                  strict=True)
 
-if __name__ == '__main__':
-  unittest.main()
+  if __name__ == '__main__':
+    unittest.main()

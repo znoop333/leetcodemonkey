@@ -95,6 +95,11 @@ def yellows(s1: str, s2: str) -> np.array:
 
 def get_pattern(s1: str, s2: str) -> np.array:
   gr = greens(s1, s2)
+  yw = yellows(s1, s2)
+  pattern = np.array(yw, dtype=int)
+  pattern[gr] += 1
+
+  return pattern
 
 
 if __name__ == "__main__":
