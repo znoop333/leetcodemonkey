@@ -77,27 +77,34 @@ def v2str(a_vec: np.array) -> str:
   return ''.join([chr(n) for n in a_vec])
 
 
-def greens(s1: str, s2: str) -> np.array:
-  return str2v(s1) == str2v(s2)
+def greens(guess: str, answer: str) -> np.array:
+  return np.array([g == a for (g, a) in zip(guess, answer)])
 
 
-def yellows(s1: str, s2: str) -> np.array:
-  c1 = Counter(s1)
-  o = np.zeros((5,), dtype=bool)
-  for i, ch in enumerate(s2):
+def yellows(guess: str, answer: str) -> np.array:
+  c1 = Counter(answer)
+  o = np.zeros((5,), dtype=int)
+  for i, ch in enumerate(guess):
     x = c1.get(ch, 0)
     if x:
       c1[ch] -= 1
-      o[i] = True
+      o[i] = 1
 
   return o
 
 
-def get_pattern(s1: str, s2: str) -> np.array:
-  gr = greens(s1, s2)
-  yw = yellows(s1, s2)
-  pattern = np.array(yw, dtype=int)
-  pattern[gr] += 1
+def get_pattern(guess: str, answer: str) -> np.array:
+  gr = greens(guess, answer)
+  if np.any(gr):
+    modified_answer = ''.join([answer[i] if not gr[i] else '_' for i, c in enumerate(gr)])
+    modified_guess = ''.join([guess[i] if not gr[i] else '*' for i, c in enumerate(gr)])
+  else:
+    modified_answer = answer
+    modified_guess = guess
+
+  yw = yellows(modified_guess, modified_answer)
+  pattern = yw
+  pattern[gr] = 2
 
   return pattern
 
