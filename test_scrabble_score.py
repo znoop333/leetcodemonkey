@@ -41,6 +41,10 @@ class TestAbsFunction(unittest.TestCase):
                                   strict=True)
     np.testing.assert_array_equal(scrabble_score.get_pattern("speed", "crepe"), [0, 1, 2, 1, 0],
                                   strict=True)
+    np.testing.assert_array_equal(scrabble_score.get_pattern("abbot", "beach"), [1, 1, 0, 0, 0],
+                                  strict=True)
+    np.testing.assert_array_equal(scrabble_score.get_pattern("abbot", "allot"), [2, 0, 0, 2, 2],
+                                  strict=True)
 
   if __name__ == '__main__':
     unittest.main()
