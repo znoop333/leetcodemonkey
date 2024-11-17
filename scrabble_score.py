@@ -110,6 +110,18 @@ def get_pattern(guess: str, answer: str) -> np.array:
   return pattern
 
 
+def compute_distribution(words_in_play: list[str], guess: str) -> np.array:
+  distr = {}
+  for w in words_in_play:
+    p = get_pattern(guess, w)
+    tp = tuple(p)
+    if tp in distr:
+      distr[tp].append(w)
+    else:
+      distr[tp] = [w]
+  return distr
+
+
 def play_game():
   # for reproducibility and debugging
   random.seed(1337)
@@ -124,6 +136,12 @@ def play_game():
 
   print(f'Starting to play with solution {solution} among {max_words} (e.g., {words_in_play[:10]})')
   scrabble_scores = sort_by_score(words_in_play)
+
+  guess = random.sample(words_in_play, 1)[0]
+  while guess == solution:
+    guess = random.sample(words_in_play, 1)[0]
+
+  distribution = compute_distribution(words_in_play, guess)
   1
 
 
