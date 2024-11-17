@@ -1,5 +1,6 @@
 import sys
 import re
+import random
 import numpy as np
 from collections import Counter
 
@@ -109,8 +110,27 @@ def get_pattern(guess: str, answer: str) -> np.array:
   return pattern
 
 
+def play_game():
+  # for reproducibility and debugging
+  random.seed(1337)
+  input_filename = r'C:\Users\znoop\Documents\leetcodemonkey\words_5letters.txt'
+  with open(input_filename) as f:
+    all_words = f.readlines()
+  all_words = [w.strip() for w in all_words]
+  max_words = min(2000, len(all_words))
+  words_in_play = random.sample(all_words, max_words)
+  random.shuffle(words_in_play)
+  solution = random.sample(words_in_play, 1)
+
+  print(f'Starting to play with solution {solution} among {max_words} (e.g., {words_in_play[:10]})')
+  scrabble_scores = sort_by_score(words_in_play)
+  1
+
+
 if __name__ == "__main__":
-  # test_score()
+  play_game()
+
+  """
   if len(sys.argv) > 1:
     with open(sys.argv[1]) as f:
       lines = f.readlines()
@@ -120,3 +140,4 @@ if __name__ == "__main__":
   lines = filter_words(lines)
 
   print(sort_by_score(lines))
+  """
