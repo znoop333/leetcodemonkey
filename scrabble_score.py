@@ -1,6 +1,7 @@
 import sys
 import re
 import random
+import math
 import numpy as np
 from collections import Counter
 
@@ -122,10 +123,20 @@ def compute_distribution(words_in_play: list[str], guess: str) -> np.array:
   return distr
 
 
+def calculate_entropy(distr: dict, n_words: int) -> float:
+  h = 0
+  for pattern, words in distr.items():
+    prob = len(words) / n_words
+    h += prob * (-math.log2(prob))
+
+  return h
+
+
 def play_game():
   # for reproducibility and debugging
   random.seed(1337)
-  input_filename = r'C:\Users\znoop\Documents\leetcodemonkey\words_5letters.txt'
+  # https://github.com/dwyl/english-words  words_alpha.txt filtered to 5 letters
+  input_filename = r'words_5letters.txt'
   with open(input_filename) as f:
     all_words = f.readlines()
   all_words = [w.strip() for w in all_words]
@@ -137,11 +148,15 @@ def play_game():
   print(f'Starting to play with solution {solution} among {max_words} (e.g., {words_in_play[:10]})')
   scrabble_scores = sort_by_score(words_in_play)
 
-  guess = random.sample(words_in_play, 1)[0]
-  while guess == solution:
+  for i_guess in range(5):
     guess = random.sample(words_in_play, 1)[0]
+    while guess == solution:
+      guess = random.sample(words_in_play, 1)[0]
 
-  distribution = compute_distribution(words_in_play, guess)
+    distribution = compute_distribution(words_in_play, guess)
+    h = calculate_entropy(distribution, max_words)
+    print(f'The entropy for guess {guess} was {h}')
+
   1
 
 
