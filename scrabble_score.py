@@ -148,15 +148,19 @@ def play_game():
   print(f'Starting to play with solution {solution} among {max_words} (e.g., {words_in_play[:10]})')
   scrabble_scores = sort_by_score(words_in_play)
 
-  for i_guess in range(5):
-    guess = random.sample(words_in_play, 1)[0]
-    while guess == solution:
-      guess = random.sample(words_in_play, 1)[0]
-
+  h_max = -1
+  max_entropy_choice = ''
+  best_distr = None
+  for guess in words_in_play:
     distribution = compute_distribution(words_in_play, guess)
     h = calculate_entropy(distribution, max_words)
     print(f'The entropy for guess {guess} was {h}')
+    if h > h_max:
+      h_max = h
+      max_entropy_choice = guess
+      best_distr = distribution
 
+  print(f'The max entropy choice was {max_entropy_choice} with {h_max}')
   1
 
 
