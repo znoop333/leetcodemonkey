@@ -4,6 +4,7 @@ import random
 import math
 import numpy as np
 from collections import Counter
+import cProfile as profile
 
 _scrabble = {
   'd': 2,
@@ -151,7 +152,7 @@ def play_game():
   h_max = -1
   max_entropy_choice = ''
   best_distr = None
-  for guess in words_in_play:
+  for guess in words_in_play[:100]:
     distribution = compute_distribution(words_in_play, guess)
     h = calculate_entropy(distribution, max_words)
     print(f'The entropy for guess {guess} was {h}')
@@ -165,7 +166,15 @@ def play_game():
 
 
 if __name__ == "__main__":
+  pr = profile.Profile()
+  pr.enable()
+
   play_game()
+
+  pr.disable()
+
+  # pr.dump_stats('profile.pstat')
+  pr.print_stats(sort="calls")
 
   """
   if len(sys.argv) > 1:
