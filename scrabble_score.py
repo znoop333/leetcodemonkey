@@ -1,12 +1,15 @@
 import sys
 from pathlib import Path
+import pickle
 import os
 import re
 import random
 import math
 import numpy as np
-from collections import Counter
+from collections import Counter, defaultdict
 import cProfile as profile
+
+_dir_name = "color_patterns"
 
 _scrabble = {
   'd': 2,
@@ -135,6 +138,19 @@ def calculate_entropy(distr: dict, n_words: int) -> float:
   return h
 
 
+def calculate_entropy_from_rev_dict(distr: dict, n_words: int) -> float:
+  sub_totals = defaultdict(int)
+  for word, pattern in distr.items():
+    sub_totals[pattern] += 1
+
+  h = 0
+  for ptn, val in sub_totals.items():
+    prob = val / n_words
+    h += prob * (-math.log2(prob))
+
+  return h
+
+
 def play_game():
   # for reproducibility and debugging
   random.seed(1337)
@@ -155,9 +171,17 @@ def play_game():
   max_entropy_choice = ''
   best_distr = None
   for guess in words_in_play[:100]:
-    distribution = compute_distribution(words_in_play, guess)
-    save_color_patterns(guess, distribution)
-    h = calculate_entropy(distribution, max_words)
+    maybe_distr = load_color_patterns(guess)
+    if maybe_distr:
+      print(f"Using serialized patterns for {guess}")
+      h = calculate_entropy_from_rev_dict(maybe_distr, n_words=max_words)
+      distribution = maybe_distr
+    else:
+      print(f"Computing patterns for {guess}")
+      distribution = compute_distribution(words_in_play, guess)
+      save_color_patterns(guess, distribution)
+      h = calculate_entropy(distribution, max_words)
+
     print(f'The entropy for guess {guess} was {h}')
     if h > h_max:
       h_max = h
@@ -170,20 +194,30 @@ def play_game():
 
 def save_color_patterns(guess: str, distribution: dict):
   # save a file containing all the color patterns in a distribution so they don't have to be recomputed later.
-  _dir_name = "color_patterns"
   _file_name = (Path(_dir_name) / guess).with_suffix(".txt")
   os.makedirs(Path(_dir_name), exist_ok=True)
 
   # invert the hash so that the keys are now the answers, and the values are the color_patterns
   lookup_by_answer = {answer: pattern for pattern, entries in distribution.items() for answer in entries}
-  with open(_file_name, mode="wt") as f:
-    # sorting the answers allows faster lookups
-    answers = list(lookup_by_answer.keys())
-    answers.sort()
-    for a in answers:
-        f.write(f'{a}:{lookup_by_answer[a]}\n')
+  # with open(_file_name, mode="wt") as f:
+  #   # sorting the answers allows faster lookups
+  #   answers = list(lookup_by_answer.keys())
+  #   answers.sort()
+  #   for a in answers:
+  #     f.write(f'{a}:{lookup_by_answer[a]}\n')
+
+  with open(_file_name.with_suffix(".pkl"), "wb") as fb:
+    pickle.dump(lookup_by_answer, fb, protocol=pickle.HIGHEST_PROTOCOL)
 
   1
+
+
+def load_color_patterns(guess: str) -> dict:
+  _file_name = (Path(_dir_name) / guess).with_suffix(".pkl")
+  if not _file_name.exists():
+    return None
+  with open(_file_name.with_suffix(".pkl"), "rb") as fb:
+    return pickle.load(fb)
 
 
 if __name__ == "__main__":
