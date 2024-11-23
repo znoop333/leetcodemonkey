@@ -1,4 +1,6 @@
 import sys
+from pathlib import Path
+import os
 import re
 import random
 import math
@@ -112,7 +114,7 @@ def get_pattern(guess: str, answer: str) -> np.array:
   return pattern
 
 
-def compute_distribution(words_in_play: list[str], guess: str) -> np.array:
+def compute_distribution(words_in_play: list[str], guess: str) -> dict:
   distr = {}
   for w in words_in_play:
     p = get_pattern(guess, w)
@@ -154,6 +156,7 @@ def play_game():
   best_distr = None
   for guess in words_in_play[:100]:
     distribution = compute_distribution(words_in_play, guess)
+    save_color_patterns(guess, distribution)
     h = calculate_entropy(distribution, max_words)
     print(f'The entropy for guess {guess} was {h}')
     if h > h_max:
@@ -162,6 +165,24 @@ def play_game():
       best_distr = distribution
 
   print(f'The max entropy choice was {max_entropy_choice} with {h_max}')
+  1
+
+
+def save_color_patterns(guess: str, distribution: dict):
+  # save a file containing all the color patterns in a distribution so they don't have to be recomputed later.
+  _dir_name = "color_patterns"
+  _file_name = (Path(_dir_name) / guess).with_suffix(".txt")
+  os.makedirs(Path(_dir_name), exist_ok=True)
+
+  # invert the hash so that the keys are now the answers, and the values are the color_patterns
+  lookup_by_answer = {answer: pattern for pattern, entries in distribution.items() for answer in entries}
+  with open(_file_name, mode="wt") as f:
+    # sorting the answers allows faster lookups
+    answers = list(lookup_by_answer.keys())
+    answers.sort()
+    for a in answers:
+        f.write(f'{a}:{lookup_by_answer[a]}\n')
+
   1
 
 
