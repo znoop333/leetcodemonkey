@@ -10,6 +10,7 @@ from collections import Counter, defaultdict
 import cProfile as profile
 
 _dir_name = "color_patterns"
+_dir_name_forward = "forward_lookup"
 
 _scrabble = {
   'd': 2,
@@ -85,6 +86,22 @@ def v2str(a_vec: np.array) -> str:
   return ''.join([chr(n) for n in a_vec])
 
 
+def pattern_tuple_to_int(pattern: tuple) -> int:
+  return sum((pattern[i] * 10 ** (4 - i) for i in range(5)))
+
+
+def pattern_int_to_tuple(pattern: int) -> tuple:
+  tmp = [0, 0, 0, 0, 0]
+  d = pattern
+  for i in range(5):
+    if not d:
+      break
+    d, r = divmod(d, 10)
+    tmp[4 - i] = r
+
+  return tuple(tmp)
+
+
 def greens(guess: str, answer: str) -> np.array:
   return np.array([g == a for (g, a) in zip(guess, answer)])
 
@@ -101,7 +118,7 @@ def yellows(guess: str, answer: str) -> np.array:
   return o
 
 
-def get_pattern(guess: str, answer: str) -> np.array:
+def get_pattern(guess: str, answer: str) -> int:
   gr = greens(guess, answer)
   if np.any(gr):
     modified_answer = ''.join([answer[i] if not gr[i] else '_' for i, c in enumerate(gr)])
@@ -114,18 +131,17 @@ def get_pattern(guess: str, answer: str) -> np.array:
   pattern = yw
   pattern[gr] = 2
 
-  return pattern
+  return pattern_tuple_to_int(pattern)
 
 
 def compute_distribution(words_in_play: list[str], guess: str) -> dict:
   distr = {}
   for w in words_in_play:
     p = get_pattern(guess, w)
-    tp = tuple(p)
-    if tp in distr:
-      distr[tp].append(w)
+    if p in distr:
+      distr[p].append(w)
     else:
-      distr[tp] = [w]
+      distr[p] = [w]
   return distr
 
 
@@ -196,15 +212,19 @@ def save_color_patterns(guess: str, distribution: dict):
   # save a file containing all the color patterns in a distribution so they don't have to be recomputed later.
   _file_name = (Path(_dir_name) / guess).with_suffix(".txt")
   os.makedirs(Path(_dir_name), exist_ok=True)
+  os.makedirs(Path(_dir_name_forward), exist_ok=True)
+
+  with open((Path(_dir_name_forward) / guess).with_suffix(".pkl"), "wb") as fb:
+    pickle.dump(distribution, fb, protocol=pickle.HIGHEST_PROTOCOL)
 
   # invert the hash so that the keys are now the answers, and the values are the color_patterns
   lookup_by_answer = {answer: pattern for pattern, entries in distribution.items() for answer in entries}
-  # with open(_file_name, mode="wt") as f:
-  #   # sorting the answers allows faster lookups
-  #   answers = list(lookup_by_answer.keys())
-  #   answers.sort()
-  #   for a in answers:
-  #     f.write(f'{a}:{lookup_by_answer[a]}\n')
+  with open(_file_name, mode="wt") as f:
+    # sorting the answers allows faster lookups
+    answers = list(lookup_by_answer.keys())
+    answers.sort()
+    for a in answers:
+      f.write(f'{a}:{lookup_by_answer[a]}\n')
 
   with open(_file_name.with_suffix(".pkl"), "wb") as fb:
     pickle.dump(lookup_by_answer, fb, protocol=pickle.HIGHEST_PROTOCOL)
